@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Florida Civics Quiz Chess</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/css/chessboard.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background: #003366;
+      color: white;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    #container {
+      margin: 20px auto;
+      max-width: 600px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #board {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #333;
+    }
+    @media (max-width: 500px) {
+      #board {
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Florida Civics Quiz Chess</header>
+  <div id="container">
+    <p>Answer a Florida Civics question correctly before each move. A wrong answer skips your turn!</p>
+    <div id="board"></div>
+    <div id="status">Game Ready!</div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/js/chessboard.min.js"></script>
+  <script>
+    const game = new Chess();
+
+    const board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      onDragStart: (source, piece) => {
+        if (game.game_over() ||
+          (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+          return false;
+        }
+      },
+      onDrop: (source, target) => {
+        const move = game.move({ from: source, to: target, promotion: 'q' });
+        if (move === null) return 'snapback';
+        askQuestion(move);
+      },
+      onSnapEnd: () => board.position(game.fen())
+    });
+
+    const questions = [
+      // 50 Florida Civics questions (see previous answer)
+      { question: "What is the state motto of Florida?", answer: "In God We Trust" },
+      { question: "What is the nickname of Florida?", answer: "The Sunshine State" },
+      { question: "Who is the current governor of Florida?", answer: "Ron DeSantis" },
+      { question: "What flower represents Florida as its state flower?", answer: "Orange Blossom" },
+      { question: "What bird is the state bird of Florida?", answer: "Northern Mockingbird" },
+      { question: "What is the state tree of Florida?", answer: "Sabal Palm" },
+      { question: "Which reptile is Florida's state reptile?", answer: "American Alligator" },
+      { question: "What is Florida's state marine mammal?", answer: "Manatee" },
+      { question: "What is Florida's state saltwater fish?", answer: "Sailfish" },
+      { question: "What is Florida's state freshwater fish?", answer: "Largemouth Bass" },
+      { question: "What is the state beverage of Florida?", answer: "Orange Juice" },
+      { question: "What is Florida's state butterfly?", answer: "Zebra Longwing" },
+      { question: "What is the state shell of Florida?", answer: "Horse Conch" },
+      { question: "What is Florida's state land mammal?", answer: "Florida Panther" },
+      { question: "What is the state stone of Florida?", answer: "Agatized Coral" },
+      { question: "What is Florida's state song?", answer: "Old Folks at Home" },
+      { question: "What is the capital of Florida?", answer: "Tallahassee" },
+      { question: "Which city is the oldest in the U.S.?", answer: "St. Augustine" },
+      { question: "What city is known for theme parks?", answer: "Orlando" },
+      { question: "What city is known for Art Deco buildings?", answer: "Miami Beach" },
+      { question: "What Florida city is known as 'Cigar City'?", answer: "Tampa" },
+      { question: "Where is Kennedy Space Center located?", answer: "Cape Canaveral" },
+      { question: "Where is the University of Florida?", answer: "Gainesville" },
+      { question: "Where is Florida State University?", answer: "Tallahassee" },
+      { question: "What is the rule of law?", answer: "No one is above the law" },
+      { question: "Why is the rule of law important?", answer: "It ensures fairness and accountability" },
+      { question: "What is due process?", answer: "Fair treatment through the judicial system" },
+      { question: "What amendment ensures federal due process?", answer: "Fifth Amendment" },
+      { question: "What amendment ensures state due process?", answer: "Fourteenth Amendment" },
+      { question: "Which branch interprets laws?", answer: "Judicial Branch" },
+      { question: "Which branch makes laws?", answer: "Legislative Branch" },
+      { question: "Which branch enforces laws?", answer: "Executive Branch" },
+      { question: "What is the highest court in the U.S.?", answer: "Supreme Court" },
+      { question: "What is the supreme law of the land?", answer: "U.S. Constitution" },
+      { question: "What protects citizens from arbitrary power?", answer: "Rule of Law" },
+      { question: "What principle ensures equality under the law?", answer: "Rule of Law" },
+      { question: "What ensures government accountability?", answer: "Rule of Law" },
+      { question: "What ensures laws are enforced fairly?", answer: "Rule of Law" },
+      { question: "What are laws created by government called?", answer: "Statutes" },
+      { question: "What law deals with crimes and punishments?", answer: "Criminal Law" },
+      { question: "What law resolves disputes between people?", answer: "Civil Law" },
+      { question: "What is due process?", answer: "Fair treatment through the judicial system" },
+      { question: "What does the judiciary do?", answer: "Interprets the law" },
+      { question: "What protects people’s legal rights?", answer: "Due Process" },
+      { question: "What keeps government from becoming too powerful?", answer: "Checks and Balances" },
+      { question: "What ensures no branch dominates?", answer: "Checks and Balances" },
+      { question: "What document outlines citizens' rights?", answer: "U.S. Constitution" },
+      { question: "What is the system of courts called?", answer: "Judiciary" },
+      { question: "What principle limits government power?", answer: "Rule of Law" }
+    ];
+
+    function askQuestion(move) {
+      const q = questions[Math.floor(Math.random() * questions.length)];
+      const answer = prompt(q.question);
+      if (answer && answer.trim().toLowerCase() === q.answer.toLowerCase()) {
+        document.getElementById('status').textContent = "Correct! Move accepted.";
+        board.position(game.fen());
+      } else {
+        game.undo();
+        board.position(game.fen());
+        document.getElementById('status').textContent = "Incorrect! Turn skipped.";
+      }
+    }
+  </script>
+</body>
+</html>
