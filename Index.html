@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Florida Civics Quiz Chess</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background: #f2f2f2;
+    }
+    h1 {
+      background-color: #003366;
+      color: white;
+      padding: 20px;
+      margin: 0;
+    }
+    #instructions {
+      margin: 20px;
+    }
+    #board {
+      display: inline-block;
+      margin: 20px auto;
+    }
+    #question-box {
+      background: white;
+      border: 2px solid #333;
+      padding: 20px;
+      max-width: 400px;
+      margin: 20px auto;
+      display: none;
+    }
+    .btn {
+      display: block;
+      background: #0066cc;
+      color: white;
+      padding: 10px;
+      margin: 5px auto;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      max-width: 300px;
+    }
+    .btn:hover {
+      background: #004c99;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css"/>
+</head>
+<body>
+  <h1>Florida Civics Quiz Chess</h1>
+  <div id="instructions">
+    Answer a Florida Civics question correctly before each move. A wrong answer skips your turn!
+  </div>
+  <div id="board" style="width: 350px;"></div>
+  <div id="question-box">
+    <p id="question-text"></p>
+    <button class="btn" onclick="checkAnswer(0)"></button>
+    <button class="btn" onclick="checkAnswer(1)"></button>
+    <button class="btn" onclick="checkAnswer(2)"></button>
+    <button class="btn" onclick="checkAnswer(3)"></button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script>
+    const board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      onDragStart: (source, piece, position, orientation) => {
+        if (game.game_over() || piece.search(/^b/) !== -1 && game.turn() === 'w' ||
+            piece.search(/^w/) !== -1 && game.turn() === 'b') return false;
+        showQuestion(source, piece);
+        return false; // block drag until question is answered
+      }
+    });
+
+    const game = new Chess();
+
+    let moveSource = null;
+    let movePiece = null;
+
+    function showQuestion(source, piece) {
+      moveSource = source;
+      movePiece = piece;
+      const q = questions[Math.floor(Math.random() * questions.length)];
+      currentQuestion = q;
+      document.getElementById("question-text").innerText = q.q;
+      q.options.forEach((opt, i) => {
+        document.getElementsByClassName("btn")[i].innerText = opt;
+      });
+      document.getElementById("question-box").style.display = "block";
+    }
+
+    function checkAnswer(index) {
+      document.getElementById("question-box").style.display = "none";
+      if (index === currentQuestion.correct) {
+        board.set({
+          draggable: true,
+          onDrop: (source, target) => {
+            const move = game.move({ from: source, to: target, promotion: 'q' });
+            if (move === null) return 'snapback';
+          }
+        });
+        board.start(); // re-enable dragging after correct answer
+        board._onDragStart(moveSource, movePiece);
+      } else {
+        alert("Incorrect! Turn skipped.");
+      }
+    }
+
+    let currentQuestion = {};
+
+    const questions = [
+      {
+        q: "What is the primary purpose of political parties?",
+        options: [
+          "To write laws",
+          "To enforce laws",
+          "To help candidates win elections",
+          "To count votes"
+        ],
+        correct: 2
+      },
+      {
+        q: "Which of the following is a responsibility of a citizen?",
+        options: [
+          "Owning property",
+          "Running for office",
+          "Paying taxes",
+          "Creating laws"
+        ],
+        correct: 2
+      },
+      {
+        q: "How do political parties influence government?",
+        options: [
+          "They vote in Congress",
+          "They fund the military",
+          "They recruit and support candidates",
+          "They appoint judges"
+        ],
+        correct: 2
+      },
+      {
+        q: "What is one benefit of a two-party system?",
+        options: [
+          "More taxes",
+          "Less freedom",
+          "Simplifies voter choices",
+          "Removes checks and balances"
+        ],
+        correct: 2
+      },
+      {
+        q: "Which action is required by law for U.S. citizens?",
+        options: [
+          "Voting in every election",
+          "Serving on a jury if selected",
+          "Donating to a political party",
+          "Joining the military"
+        ],
+        correct: 1
+      },
+      // Add 45 more questions following this format…
+    ];
+  </script>
+</body>
+</html>
